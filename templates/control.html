@@ -1,0 +1,414 @@
+{% extends "base_control.html" %}
+
+{% block sidebar %}
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h5> {{ result }} </h5>
+            <h5> {{ hotspot }} </h5>
+            <strong><i class="fa fa-wifi"></i></strong>
+        </div>
+        <ul class="list-unstyled components">
+            <li class="menu active menu-dashboard">
+                <a href="#">
+                    <i class="fa fa-home"></i>Dashboard
+                </a>
+            </li>
+            <li class="menu menu-device">
+                <a href="#">
+                    <i class="fas fa-power-off"></i>Device
+                </a>
+            </li>
+            <li class="menu">
+                <a href="{% url 'admin:index' %}">
+                    <i class="fas fa-cog"></i>Admin Settings
+                </a>
+            </li>
+            <li class="menu menu-license">
+                <a href="#">
+                    <i class="fas fa-key"></i>License
+                </a>
+            </li>
+            <li class="menu">
+                <a href="{% url 'app:portal' %}">
+                    <i class="fas fa-window-close"></i>Exit
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock sidebar %}
+{% block main %}
+    <div id="main">
+        {% if message %}
+        <div class="alert alert alert-danger" role="alert">{{ message }}</div>
+        {% endif %}
+        <div class="content dashboard">
+            <div class="row">
+                <div class="col-12">
+                    <h3>Dashboard</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xl-3 col-sm-6 mb-2">
+                    <div class="card text-dark bg-light overflow-hidden h-100">
+                        <div class="card-header">
+                            <span class="float-left">Clients</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-body-icon">
+                                <i class="fas fa-fw fa-users"></i>
+                            </div>
+                            <div class="mr-5 text-center float-left">
+                                <h3 class="text-success"><strong>{{ connected_count }}</strong></h3>
+                                <small class="text-success">Connected</small>
+                            </div>
+                            <div class="text-center">
+                                <h3 class="text-danger"><strong>{{ disconnected_count }}</strong></h3>
+                                <small class="text-danger">Disconnected</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-xl-3 col-6 mb-2">
+                    <div class="card text-white bg-info overflow-hidden h-100">
+                        <div class="card-header">
+                            <span class="float-left">Total Sales</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-body-icon">
+                                <i class="fas fa-fw fa-list"></i>
+                            </div>
+                            <div class="mr-5">
+                                <h3>{{ denom }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-6 mb-2">
+                    <div class="card text-white bg-warning overflow-hidden h-100">
+                        <div class="card-header">
+                            <span class="float-left">Coin Count</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-body-icon">
+                                <i class="fas fa-fw fa-coins"></i>
+                            </div>
+                            <div class="mr-5">
+                                <h3>{{ count }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-1">
+                    <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#reset-modal"><span class="fa fa-window-close"></span>  Reset</button>
+                </div>
+            </div>
+        </div>
+        <div class="content device d-none">
+            <div class="row">
+                <div class="col-12">
+                    <h3>Device</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <button type="button" class="btn btn-warning w-100" data-toggle="modal" data-target="#reboot-modal">
+                        <i class="fa fa-undo"></i> Reboot Device
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button type="button" class="btn btn-danger w-100" data-toggle="modal" data-target="#poweroff-modal">
+                        <i class="fas fa-power-off"></i> Power Off
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="content license d-none">
+            <div class="row">
+                <div class="col-12">
+                    <h3>License</h3>
+                </div>
+            </div>
+            <hr class="mt-0 mb-2">
+            <div class="row">
+                {% if license_status == 'Activated' %}
+                    <div class="col-12">
+                        <p class="mb-2">Status:</p>
+                        <h2 class="text-success">Activated</h2>
+                        <p class="mb-2">Activation Key:</p>
+                        <p class="text-dark mb-0" style="overflow-wrap: anywhere;"> {{ license }} </p>
+                        <hr>
+                        <p class="text-info mb-0" style="font-size: 1em;">You are using the full functionality of the software.</p>
+                        <p class="text-info" style="font-size: 1em;">Thank you for using OJO Wifi Vending machine.</p>
+                    </div>
+                {% else %}
+                    <div class="col-md-6 col-12">
+                        <p class="mb-2">Status:</p>
+                        <h2 class="text-danger">Not Activated</h2>
+                        <p class="mb-2">Registration Code:</p>
+                        <input type="text" class="form-control mb-2" readonly id="text-registration-code">
+                        <button type="button" class="btn btn-sm btn-primary mb-3 btn-generate">Generate</button>
+                        <p class="mb-2">Activation Key:</p>
+                        <input type="text" class="form-control mb-2" placeholder="Paste activation here" id="text-activation-key" spellcheck="false">
+                        <input type="submit" class="btn btn-sm btn-success mb-2 btn-activate" value="Activate"></input>
+                    </div>
+                {% endif %}
+                
+            </div>
+        </div>
+    </div>
+        {% csrf_token %}
+        <!-- Modals -->
+        <div class="modal fade" id="reset-modal">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title">Confirm</h6>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-success btn-reset" data-dismiss="modal">Continue</button>
+                        <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="restart-modal">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title">Confirm</h6>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-success btn-restart" data-dismiss="modal">Continue</button>
+                        <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="reboot-modal">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title">Confirm</h6>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-success btn-reboot" data-dismiss="modal">Continue</button>
+                        <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="poweroff-modal">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title">Confirm</h6>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-success btn-poweroff" data-dismiss="modal">Continue</button>
+                        <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="modal fade" id="loader-modal" role="dialog" tabindex="-1" aria-labelledby="loaderModal" data-keyboard="false" data-backdrop="static"> -->
+        <div class="modal fade" id="loader-modal" data-keyboard="false">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-body text-center">
+                        <div class="loader-text"><span class="fa fa-spinner fa-spin"></span></div>
+                    </div>
+                </div>
+            </div>
+            <!-- <button type="button" class="btn btn-sm btn-danger btn-modal-dismiss" data-dismiss="modal">Cancel</button> -->
+        </div>
+
+        <!-- Success Modal -->
+        <div id="success-modal" class="modal fade" data-keyboard="false" data-backdrop="static">
+            <div class="modal-dialog modal-confirm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="icon-box">
+                            <i class="fa fa-check"></i>
+                        </div>
+                    </div>
+                    <div class="modal-body text-center">
+                        <h4>Great!</h4> 
+                        <p>Your device has been activated successfully.</p>
+                        <button class="btn btn-success" data-dismiss="modal" onclick="window.location.href='/app/control';"><span>Got it</span></button>
+                    </div>
+                </div>
+            </div>
+        </div> 
+        <!-- End Success Modal -->
+
+        <!-- Error Modal -->
+        <div id="error-modal" class="modal fade">
+            <div class="modal-dialog modal-confirm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="icon-box">
+                            <i class="fa fa-times"></i>
+                        </div>              
+                        <!-- <h4 class="modal-title">Are you sure?</h4>   -->
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <h4>Sorry :(</h4>
+                        <p>You've entered an invalid activation code.</p>
+                        <button class="btn btn-success" data-dismiss="modal">Try again</button>
+                        <!-- <p>Please try again.</p> -->
+                    </div>
+                </div>
+            </div>
+        </div>     
+        <!-- End Error Modal -->
+
+{% endblock main %}
+{% block custom_scripts %}
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+            // Sidebar Collapse - Expand
+            $('#sidebarCollapse').on('click', function(){
+                $('#sidebar').toggleClass('active');
+            });
+            // Sidebar Menu
+
+            $('.menu').on('click', function(){
+                $('.menu').removeClass('active');
+                $(this).toggleClass('active');
+            })
+
+            $('.menu-dashboard').on('click', function(){
+                $('.dashboard').removeClass('d-none');
+                $('.device').addClass('d-none');
+                $('.license').addClass('d-none');
+            })
+
+            $('.menu-device').on('click', function(){
+                $('.dashboard').addClass('d-none');
+                $('.device').removeClass('d-none');
+                $('.license').addClass('d-none');
+            })
+            $('.menu-license').on('click', function(){
+                $('.dashboard').addClass('d-none');
+                $('.device').addClass('d-none');
+                $('.license').removeClass('d-none');
+            })
+
+            function device_action(action, text) {
+                
+                var token = $('input[name=csrfmiddlewaretoken]').val();
+                var data = {
+                    'csrfmiddlewaretoken': token,
+                    'action': action
+                    }
+                $.ajax({
+                    method: 'POST',
+                    url: '/app/control',
+                    data: data,
+                    beforeSend: function(){
+                        $("#loader-modal .loader-text").append(text)
+                        $("#loader-modal").modal('show');
+                    },
+                    success: function(result){
+                        setTimeout(function(){
+                            window.location.href='/app/control'
+                        }, 20000);
+                    }
+                });
+                
+            }
+
+            // Device Actions 
+            $('.btn-reboot').on('click', function(){
+                device_action('reboot', '   Rebooting..');
+            })
+
+            $('.btn-poweroff').on('click', function(){
+                device_action('poweroff', '   Shutting down..');
+            })
+
+            $('.btn-reset').on('click', function(){
+                var token = $('input[name=csrfmiddlewaretoken]').val();
+                var data = {
+                    'csrfmiddlewaretoken': token,
+                    'action': 'reset'
+                    }
+                $.ajax({
+                    method: 'GET',
+                    url: '/app/control',
+                    data: data,
+                    beforeSend: function(){
+                        $("#loader-modal .loader-text").append('   Resetting dashboard counter..')
+                        $("#loader-modal").modal('show');
+                    },
+                    success: function(result){
+                        setTimeout(function(){
+                            window.location.href='/app/control'
+                        }, 3000);
+                    }
+                })
+            })
+            
+            // License Actions
+            $('.btn-generate').on('click', function(e){
+                var token = $('input[name=csrfmiddlewaretoken]').val();
+                var data = {
+                    'csrfmiddlewaretoken': token,
+                    }
+                $.ajax({
+                    method: 'POST',
+                    url: '/app/gen_rc',
+                    data: data,
+                    success: function(result){
+                        $("#text-registration-code").val(result.key);
+                        $(".btn-generate").prop('disabled', true);
+                    }
+                })
+            })
+
+            $('.btn-activate').on('click', function(e){
+                var token = $('input[name=csrfmiddlewaretoken]').val();
+
+                if(!$("#text-activation-key").val()){
+                    $("#text-activation-key").addClass("is-invalid")
+                }else{
+                    
+                    var data = {
+                        'csrfmiddlewaretoken': token,
+                        'activation_key': $("#text-activation-key").val()
+                    }
+                    $.ajax({
+                        method: 'POST',
+                        url: "/app/activate",
+                        data: data,
+                        success: function(result){
+                            if (result.message == 'Success'){
+                                $("#success-modal").modal("show");
+                                $("#text-activation-key").addClass("is-valid")
+                            }
+                            if (result.message == 'Error'){
+                                $("#error-modal").modal("show");
+                                $("#text-activation-key").addClass("is-invalid");
+                            }
+                        }
+                    })
+                }
+            })
+        });
+    </script>  
+{% endblock custom_scripts %}
